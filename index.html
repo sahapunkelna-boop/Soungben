@@ -274,6 +274,11 @@
             `;
             return;
         }
+        
+        // ถ้าผ่านเงื่อนไข ให้รันระบบปกติ...
+        initAppLogic(); 
+    });
+}
         ,{
             const tableSelect = document.getElementById('tableNo');
             const adminFilterSelect = document.getElementById('adminTableFilter');
