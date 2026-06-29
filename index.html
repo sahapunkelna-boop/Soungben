@@ -306,6 +306,31 @@
                     // สั่งระบบให้เริ่มต้นเล่นคิวเพลงนี้โดยอัตโนมัติทันที
                     window.initAndPlayPlayer(ytId, safeSongTitle, firstPendingSong.id);
                 }
+                // --- โค้ดตรวจสอบเวลาเพื่อปิดฟอร์ม ---
+    const now = new Date();
+    const hours = now.getHours();
+    
+    // ตั้งค่าช่วงเวลาที่อนุญาต (17:00 ถึง 23:59)
+    const isAllowed = hours >= 17; 
+
+    if (!isAllowed) {
+        // 1. ปิดการใช้งานปุ่มส่งเพลง
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.classList.replace('bg-gradient-to-r', 'bg-slate-600');
+        submitBtn.classList.replace('from-emerald-500', 'from-slate-600');
+        submitBtn.classList.replace('to-teal-500', 'to-slate-600');
+        submitBtn.innerText = "ระบบปิดให้บริการ (เปิด 17.00 - 24.00 น.)";
+
+        // 2. ปิดการใช้งาน Input และ Select
+        document.getElementById('tableNo').disabled = true;
+        document.getElementById('songName').disabled = true;
+        
+        // 3. แจ้งเตือนเล็กน้อย
+        console.log("นอกเวลาทำการ: ปิดระบบส่งเพลง");
+    }
+    // ----------------------------------
+}
             }
 
             syncCurrentlyPlayingTitle();
