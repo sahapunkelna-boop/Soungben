@@ -289,44 +289,67 @@
             });
         }
 
-        // 🌟 ฟังคำสั่งดึงข้อมูล Real-time จากระบบคลาวด์
-        onValue(songsRef, (snapshot) => {
-            const data = snapshot.val();
-            songQueue = [];
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    songQueue.push({ id: key, ...data[key] });
-                });
-                songQueue.sort((a, b) => (a.order || 0) - (b.order || 0));
-            }
+      // 🌟 ฟังคำสั่งดึงข้อมูล Real-time จากระบบคลาวด์
+onValue(songsRef, (snapshot) => {
+    const data = snapshot.val();
+    songQueue = [];
+    if (data) {
+        Object.keys(data).forEach(key => {
+            songQueue.push({ id: key, ...data[key] });
+        });
+        songQueue.sort((a, b) => (a.order || 0) - (b.order || 0));
+    }
 
-            // 🎯 เช็คสถานะรายการที่ยังไม่ได้เล่น (pending) และตรวจสอบสถานะเครื่องเล่นปัจจุบัน
-            const hasPlayingSong = songQueue.some(item => item.status === 'playing');
-            const firstPendingSong = songQueue.find(item => item.status === 'pending');
+    const hasPlayingSong = songQueue.some(item => item.status === 'playing');
+    const firstPendingSong = songQueue.find(item => item.status === 'pending');
 
-            // เงื่อนไข: ถ้าไม่มีเพลงไหนกำลังเล่นอยู่ และตรวจสอบพบว่ามีเพลงคิวรอ (pending) ค้างอยู่
-            if (!hasPlayingSong && firstPendingSong) {
-                const ytId = extractYouTubeId(firstPendingSong.url);
-                if (ytId) {
-                    const safeSongTitle = firstPendingSong.song.replace(/'/g, "\\'").replace(/"/g, '\\"');
-                    // สั่งระบบให้เริ่มต้นเล่นคิวเพลงนี้โดยอัตโนมัติทันที
-                    window.initAndPlayPlayer(ytId, safeSongTitle, firstPendingSong.id);
+    // ตรวจสอบเงื่อนไขการเล่นอัตโนมัติ
+    if (!hasPlayingSong && firstPendingSong) {
+        const ytId = extractYouTubeId(firstPendingSong.url);
+        if (ytId) {
+            // ส่งค่าเข้าฟังก์ชันเล่นเพลง
+            window.initAndPlayPlayer(ytId, firstPendingSong.song, firstPendingSong.id);
+        }
+    }
+
+    syncCurrentlyPlayingTitle();
+    renderQueue();
+    renderCustomerQueue();
+});
+
+window.initAndPlayPlayer = function(videoId, songTitle, queueId) {
+    // อัปเดตสถานะใน Firebase ให้เป็นกำลังเล่น
+    update(ref(db, `songs/${queueId}`), { status: 'playing' });
+    
+    const playerContainer = document.getElementById('videoPlayerContainer');
+    const targetWrapper = document.getElementById('youtubePlayer');
+    
+    playerContainer.classList.remove('hidden');
+
+    // ถ้า Player มีอยู่แล้ว ให้โหลดใหม่ แทนการสร้าง Object ใหม่
+    if (player && typeof player.loadVideoById === 'function') {
+        player.loadVideoById(videoId);
+    } else {
+        player = new YT.Player('youtubePlayer', {
+            height: '100%', 
+            width: '100%', 
+            videoId: videoId,
+            playerVars: { 
+                'autoplay': 1, 
+                'playsinline': 1,
+                'origin': window.location.origin 
+            },
+            events: { 
+                'onStateChange': (event) => {
+                    // สถานะ 0 คือเพลงจบ
+                    if (event.data === 0) { 
+                        window.moveToStatus(queueId, 'completed');
+                    }
                 }
             }
-
-            syncCurrentlyPlayingTitle();
-            renderQueue();          
-            renderCustomerQueue();  
         });
-
-        window.handleCustomerTableChange = function() {
-            const tableVal = document.getElementById('tableNo').value;
-            if (tableVal) {
-                document.getElementById('customerTableFilter').value = tableVal;
-                selectedCustomerTable = tableVal;
-                renderCustomerQueue();
-            }
-        }
+    }
+};
 
         window.handleCustomerFilterChange = function() {
             selectedCustomerTable = document.getElementById('customerTableFilter').value;
