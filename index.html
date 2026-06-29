@@ -896,6 +896,46 @@
                 });
             }
         }
+        // ในส่วนของ Firebase (หลังจากเชื่อมต่อ db แล้ว)
+import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.x.x/firebase-database.js";
+
+const statusRef = ref(db, 'systemStatus');
+
+// 1. ฟังก์ชันคอยฟังว่าแอดมินสั่งเปิดหรือปิดระบบ
+onValue(statusRef, (snapshot) => {
+    const isSystemOpen = snapshot.val(); // ได้ค่า true (เปิด) หรือ false (ปิด)
+    updateUI(isSystemOpen);
+});
+
+// 2. ฟังก์ชันอัปเดตหน้าจอตามสถานะ
+function updateUI(isOpen) {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const inputs = [document.getElementById('tableNo'), document.getElementById('songName')];
+
+    if (!isOpen) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "ระบบปิดให้บริการ";
+        inputs.forEach(input => input.disabled = true);
+    } else {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "ส่งคำขอเพลงเข้าสู่ระบบ";
+        inputs.forEach(input => input.disabled = false);
+    }
+}
+3. สร้าง "ปุ่มเปิด-ปิด" สำหรับแอดมิน
+คุณสามารถสร้างปุ่มลับหรือเมนูสำหรับแอดมินไว้ในหน้าเว็บ เพื่อใช้กดสลับสถานะ:
+
+JavaScript
+// ฟังก์ชันสำหรับแอดมินกดสลับ (วางไว้ในส่วนที่แอดมินเท่านั้นที่กดได้)
+window.toggleSystemStatus = function() {
+    const statusRef = ref(db, 'systemStatus');
+    // ดึงค่าปัจจุบันมาสลับ
+    get(statusRef).then((snapshot) => {
+        const currentStatus = snapshot.val();
+        update(ref(db), { systemStatus: !currentStatus });
+        alert(currentStatus ? "ปิดระบบเรียบร้อยแล้ว" : "เปิดระบบเรียบร้อยแล้ว");
+    });
+};
     </script>
 
 
