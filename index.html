@@ -212,6 +212,18 @@
                     ยืนยันรหัส
                 </button>
             </div>
+
+
+            
+            <div class="bg-slate-900 p-4 rounded-xl border border-emerald-500/20 mt-4">
+    <h3 class="text-xs font-bold text-emerald-400 mb-2">นำเข้าเพลงจาก Playlist</h3>
+    <div class="flex gap-2">
+        <input type="text" id="playlistIdInput" placeholder="ใส่รหัส Playlist ID..." class="flex-1 bg-slate-800 rounded-lg p-2 text-xs">
+        <button onclick="addPlaylistToQueue(document.getElementById('playlistIdInput').value)" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold">
+            นำเข้า
+        </button>
+    </div>
+</div>
         </div>
     </div>
 
