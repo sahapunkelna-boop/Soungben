@@ -894,6 +894,41 @@
                     window.closeVideoPlayer();
                 });
             }
+        window.addPlaylistToQueue = async function(playlistId) {
+    if (!playlistId) playlistId = prompt("กรุณากรอก Playlist ID:");
+    if (!playlistId) return;
+
+    const API_KEY = 'ใส่ API KEY ของคุณที่นี่'; // ใช้ KEY ตัวเดียวกับที่ใช้ค้นหาเพลง
+    const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${API_KEY}`;
+
+    try {
+        const response = await fetch(playlistUrl);
+        const data = await response.json();
+
+        if (data.items) {
+            data.items.forEach(item => {
+                const videoId = item.snippet.resourceId.videoId;
+                const title = item.snippet.title;
+                const url = `https://www.youtube.com/watch?v=${videoId}`;
+                
+                // เพิ่มเข้า Firebase
+                const newSong = {
+                    table: 'Admin', // ระบุว่ามาจาก Playlist
+                    song: title,
+                    url: url,
+                    time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                    status: 'pending',
+                    order: Date.now() // ใช้เวลาเป็นตัวเรียงลำดับ
+                };
+                push(songsRef, newSong);
+            });
+            alert(`เพิ่มเพลงจาก Playlist สำเร็จ จำนวน ${data.items.length} เพลง`);
+        }
+    } catch (error) {
+        console.error("Error fetching playlist:", error);
+        alert("ไม่สามารถดึงข้อมูลจาก Playlist ได้ ตรวจสอบ ID หรือ API Key");
+    }
+};
         }
     </script>
 
