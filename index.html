@@ -902,64 +902,7 @@
                 });
             }
         }
-        // 🔗 บัญชี Firebase ของคุณ
-        const firebaseConfig = {
-            apiKey: "AIzaSyC9TWZbygXniEE2gE0SU08mFnaeCH2wlz8",
-            authDomain: "my-shop-music.firebaseapp.com",
-            databaseURL: "https://my-shop-music-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "my-shop-music",
-            storageBucket: "my-shop-music.firebasestorage.app",
-            messagingSenderId: "113291989652",
-            appId: "1:113291989652:web:cc529e1558f661e29f5a81",
-            measurementId: "G-SM2FQCB6YS"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const songsRef = ref(db, 'songs');
-
-        const YT_API_KEY = 'AIzaSyComYbMyJPLjnQEErW_V7q4xpYZcNkIfdk'; 
-        const DJ_PASSWORD = '1'; 
-        
-        let currentRole = 'customer';
-        let currentTab = 'pending'; 
-        let selectedTableFilter = 'all'; 
-        let selectedCustomerTable = 'none'; 
-        let songQueue = []; 
-        let player = null; 
-        let currentlyPlayingId = null; 
-
-        // 🌟 ฟังคำสั่งดึงข้อมูล Real-time (ทำงานตลอดเวลาไม่ว่าใครจะเปิดหน้าจอไหน)
-        onValue(songsRef, (snapshot) => {
-            const data = snapshot.val();
-            songQueue = [];
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    songQueue.push({ id: key, ...data[key] });
-                });
-                songQueue.sort((a, b) => (a.order || 0) - (b.order || 0));
-            }
-
-            // --- ส่วนที่แก้ไข: ระบบตรวจสอบอัตโนมัติ ---
-            const hasPlayingSong = songQueue.some(item => item.status === 'playing');
-            const firstPendingSong = songQueue.find(item => item.status === 'pending');
-
-            // หากไม่มีเพลงเล่นอยู่ แต่มีเพลงรอ (pending) ให้เริ่มเล่นเพลงแรกทันที
-            if (!hasPlayingSong && firstPendingSong && currentRole === 'admin') {
-                const ytId = extractYouTubeId(firstPendingSong.url);
-                if (ytId) {
-                    window.initAndPlayPlayer(ytId, firstPendingSong.song, firstPendingSong.id);
-                }
-            }
-            // ------------------------------------------
-
-            syncCurrentlyPlayingTitle();
-            renderQueue();          
-            renderCustomerQueue();  
-        });
-
-        // ... (คงโค้ดส่วนอื่นๆ ของคุณไว้เหมือนเดิมทั้งหมด ตั้งแต่ handleCustomerTableChange ถึงจบสคริปต์)
-        // ... เพียงแค่นำโค้ดบนไปวางทับในส่วน <script type="module"> ของเดิมครับ
+      
     </script>
     </script>
 
