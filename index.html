@@ -226,6 +226,25 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        // กำหนด Username และ Password
+        const AUTH_USER = "DJ";
+        const AUTH_PASS = "D1";
+        window.requestSystemToggle = function(status) {
+    const username = prompt("กรุณากรอก Username:");
+    const password = prompt("กรุณากรอก Password:");
+    
+    if (username === AUTH_USER && password === AUTH_PASS) {
+        // อัปเดตสถานะใน Firebase
+        set(ref(db, 'systemConfig/isSystemOpen'), status)
+            .then(() => {
+                alert(status ? "✅ เปิดระบบเรียบร้อยแล้ว" : "❌ ปิดระบบเรียบร้อยแล้ว");
+                location.reload();
+            })
+            .catch((error) => alert("เกิดข้อผิดพลาด: " + error.message));
+    } else if (username !== null || password !== null) {
+        alert("❌ Username หรือ Password ไม่ถูกต้อง!");
+    }
+}
 
         // 🔗 บัญชี Firebase ของโปรเจกต์คุณ
         const firebaseConfig = {
